@@ -86,3 +86,50 @@ fig2 = px.pie(
     hole=0.4
 )
 st.plotly_chart(fig2, use_container_width=True)
+
+# ---------- TREND ANALYSIS & TOP PRODUCTS ----------
+st.markdown("---")
+st.subheader(" Trend Analysis & Top Products")
+
+# --- Chart 3: Monthly Sales Trend ---
+# Ensure Order Date is datetime for both dataframes
+df["Order Date"] = pd.to_datetime(df["Order Date"], errors="coerce")
+filtered_df["Order Date"] = pd.to_datetime(filtered_df["Order Date"], errors="coerce")
+
+# Group sales by month (use filtered data)
+monthly_sales = (
+    filtered_df.groupby(filtered_df["Order Date"].dt.to_period("M"))["Sales"]
+    .sum()
+    .reset_index()
+)
+monthly_sales["Order Date"] = monthly_sales["Order Date"].astype(str)
+
+fig3 = px.area(
+    monthly_sales,
+    x="Order Date",
+    y="Sales",
+    title="Monthly Sales Trend",
+    markers=True
+)
+st.plotly_chart(fig3, use_container_width=True)
+
+# --- Chart 4: Top 10 Products by Sales ---
+top_products = (
+    filtered_df.groupby("Product Name")["Sales"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+    .reset_index()
+)
+
+fig4 = px.bar(
+    top_products,
+    x="Sales",
+    y="Product Name",
+    orientation="h",
+    title="Top 10 Products by Sales",
+    text_auto=".2s",
+    color="Sales"
+)
+fig4.update_yaxes(categoryorder="total ascending")
+st.plotly_chart(fig4, use_container_width=True)
