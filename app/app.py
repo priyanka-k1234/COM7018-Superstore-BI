@@ -2,6 +2,7 @@
 
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # ---------- PAGE SETTINGS ----------
 st.set_page_config(page_title="Superstore BI Dashboard", layout="wide")
@@ -13,55 +14,58 @@ DATA_PATH = r"C:\Users\HP\OneDrive\Desktop\assesment_task\data\Sample - Supersto
 @st.cache_data
 def load_data(path):
     """Load dataset with correct encoding"""
-    df = pd.read_csv(path, encoding='latin1')  
+    df = pd.read_csv(path, encoding='latin1')
     return df
 
 try:
     df = load_data(DATA_PATH)
-    st.success(" Dataset loaded successfully!")
+    st.success("Dataset loaded successfully!")
 except Exception as e:
     st.error(f" Error loading dataset: {e}")
     st.stop()
 
+# ---------- SIDEBAR FILTERS ----------
+st.sidebar.header(" Filter Options")
+
+regions = st.sidebar.multiselect(
+    "Select Region(s):",
+    options=df["Region"].unique(),
+    default=df["Region"].unique()
+)
+
+categories = st.sidebar.multiselect(
+    "Select Category(ies):",
+    options=df["Category"].unique(),
+    default=df["Category"].unique()
+)
+
+# Apply filters dynamically
+filtered_df = df.query("Region == @regions and Category == @categories")
+
 # ---------- DATA PREVIEW ----------
 st.subheader(" Data Preview")
-st.dataframe(df.head(50), use_container_width=True)
-
-# ---------- KPI SECTION ----------
-st.subheader("Key Performance Indicators")
-
-total_sales = df["Sales"].sum()
-total_profit = df["Profit"].sum()
-total_orders = df["Order ID"].nunique()
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Sales", f"${total_sales:,.2f}")
-col2.metric("Total Profit", f"${total_profit:,.2f}")
-col3.metric("Total Orders", f"{total_orders:,}")
-
-st.caption(" Data Source: Sample Superstore Dataset (Kaggle)")
+st.dataframe(filtered_df.head(50), use_container_width=True)
 
 # ---------- KPI SECTION ----------
 st.subheader(" Key Performance Indicators")
 
-total_sales = df["Sales"].sum()
-total_profit = df["Profit"].sum()
-total_orders = df["Order ID"].nunique()
+total_sales = filtered_df["Sales"].sum()
+total_profit = filtered_df["Profit"].sum()
+total_orders = filtered_df["Order ID"].nunique()
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Sales", f"${total_sales:,.2f}")
 col2.metric("Total Profit", f"${total_profit:,.2f}")
 col3.metric("Total Orders", f"{total_orders:,}")
 
-st.caption(" Data Source: Sample Superstore Dataset (Kaggle)")
+st.caption("Data Source: Sample Superstore Dataset (Kaggle)")
 
 # ---------- VISUALIZATIONS ----------
-import plotly.express as px
 st.markdown("---")
 st.subheader(" Visual Insights")
 
 # --- Chart 1: Sales by Region ---
-region_sales = df.groupby("Region")["Sales"].sum().reset_index()
+region_sales = filtered_df.groupby("Region")["Sales"].sum().reset_index()
 fig1 = px.bar(
     region_sales,
     x="Region",
@@ -73,7 +77,7 @@ fig1 = px.bar(
 st.plotly_chart(fig1, use_container_width=True)
 
 # --- Chart 2: Profit by Category ---
-category_profit = df.groupby("Category")["Profit"].sum().reset_index()
+category_profit = filtered_df.groupby("Category")["Profit"].sum().reset_index()
 fig2 = px.pie(
     category_profit,
     names="Category",
@@ -82,4 +86,3 @@ fig2 = px.pie(
     hole=0.4
 )
 st.plotly_chart(fig2, use_container_width=True)
-
