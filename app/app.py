@@ -133,3 +133,16 @@ fig4 = px.bar(
 )
 fig4.update_yaxes(categoryorder="total ascending")
 st.plotly_chart(fig4, use_container_width=True)
+
+# ---------- FOOTER ----------
+st.markdown("---")
+st.markdown(
+    """
+    <div style='text-align: center; font-size: 15px; color: gray;'>
+         Developed for COM7018 Assessment &nbsp;|&nbsp; 
+        © 2025 Priyanka K
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
