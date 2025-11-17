@@ -20,18 +20,6 @@ It is designed to support **data-driven decision-making** through clean visualis
 6 Clean and Responsive Streamlit UI  
 7 Ready for future extensions (customer segmentation, predictive analysis, etc.)
 
----
-
-##  Project Structure
-assessment_task/
-├── app/
-│ └── app.py # Main Streamlit App
-├── data/
-│ └── Sample - Superstore.csv
-├── screenshots/ # Dashboard screenshots
-├── Requirement.txt # Required dependencies
-└── README.md
-
 
 ---
 
